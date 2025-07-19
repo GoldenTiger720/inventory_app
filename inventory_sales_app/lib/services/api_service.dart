@@ -187,7 +187,9 @@ class ApiService {
   Future<void> startInventoryCount() async {
     await _loadToken();
     try {
-      await _dio.post('/inventory/start-count');
+      // Mock implementation - just simulate success
+      await Future.delayed(const Duration(milliseconds: 500));
+      // In a real app, this would make an API call
     } catch (e) {
       throw Exception('Error starting inventory count: $e');
     }
@@ -205,7 +207,8 @@ class ApiService {
   Future<void> deleteInventoryCount(String itemId) async {
     await _loadToken();
     try {
-      await _dio.delete('/inventory/count/$itemId');
+      // Mock implementation
+      await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
       throw Exception('Error deleting inventory count: $e');
     }
@@ -214,9 +217,8 @@ class ApiService {
   Future<void> sendItemForCounting(String productId) async {
     await _loadToken();
     try {
-      await _dio.post('/inventory/send-for-count', data: {
-        'product_id': productId,
-      });
+      // Mock implementation
+      await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
       throw Exception('Error sending item for counting: $e');
     }
@@ -225,7 +227,8 @@ class ApiService {
   Future<void> removeItemFromCounting(String itemId) async {
     await _loadToken();
     try {
-      await _dio.delete('/inventory/remove-from-count/$itemId');
+      // Mock implementation
+      await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
       throw Exception('Error removing item from counting: $e');
     }
@@ -234,7 +237,8 @@ class ApiService {
   Future<void> updateItemCounting(String itemId, Map<String, dynamic> updates) async {
     await _loadToken();
     try {
-      await _dio.put('/inventory/update-count/$itemId', data: updates);
+      // Mock implementation
+      await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
       throw Exception('Error updating item counting: $e');
     }

@@ -1,9 +1,20 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../models/order_item.dart';
+import '../models/order.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 
 abstract class OrderEvent {}
+
+class OrderLoadItems extends OrderEvent {}
+
+class OrderSearchItems extends OrderEvent {
+  final String query;
+  
+  OrderSearchItems(this.query);
+}
+
+class OrderCreateNew extends OrderEvent {}
 
 class OrderAddProduct extends OrderEvent {
   final Product product;
@@ -33,6 +44,13 @@ class OrderInitial extends OrderState {}
 
 class OrderLoading extends OrderState {}
 
+class OrderLoaded extends OrderState {
+  final List<Order> orders;
+  final Order? currentOrder;
+  
+  OrderLoaded({required this.orders, this.currentOrder});
+}
+
 class OrderUpdated extends OrderState {
   final List<OrderItem> items;
   final double total;
@@ -49,14 +67,104 @@ class OrderError extends OrderState {
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
   final ApiService _apiService;
   final List<OrderItem> _items = [];
+  final List<Order> _orders = [];
 
   OrderBloc({required ApiService apiService})
       : _apiService = apiService,
         super(OrderInitial()) {
+    on<OrderLoadItems>(_onLoadItems);
+    on<OrderSearchItems>(_onSearchItems);
+    on<OrderCreateNew>(_onCreateNew);
     on<OrderAddProduct>(_onAddProduct);
     on<OrderRemoveProduct>(_onRemoveProduct);
     on<OrderUpdateQuantity>(_onUpdateQuantity);
     on<OrderClear>(_onClear);
+  }
+
+  Future<void> _onLoadItems(
+    OrderLoadItems event,
+    Emitter<OrderState> emit,
+  ) async {
+    emit(OrderLoading());
+    
+    try {
+      // Mock data for demonstration
+      final mockOrders = [
+        Order(
+          id: '1',
+          customerName: 'John Doe',
+          status: 'completed',
+          total: 156.99,
+          items: [],
+          createdAt: DateTime.now().subtract(const Duration(days: 1)),
+        ),
+        Order(
+          id: '2',
+          customerName: 'Jane Smith',
+          status: 'pending',
+          total: 89.50,
+          items: [],
+          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+        ),
+        Order(
+          id: '3',
+          customerName: 'Bob Johnson',
+          status: 'pending',
+          total: 234.75,
+          items: [],
+          createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+        ),
+      ];
+      
+      _orders.clear();
+      _orders.addAll(mockOrders);
+      
+      emit(OrderLoaded(orders: List.from(_orders)));
+    } catch (e) {
+      emit(OrderError('Error loading orders: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onSearchItems(
+    OrderSearchItems event,
+    Emitter<OrderState> emit,
+  ) async {
+    emit(OrderLoading());
+    
+    try {
+      final filteredOrders = _orders.where((order) {
+        return order.customerName.toLowerCase().contains(event.query.toLowerCase()) ||
+               order.id.contains(event.query);
+      }).toList();
+      
+      emit(OrderLoaded(orders: filteredOrders));
+    } catch (e) {
+      emit(OrderError('Error searching orders: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onCreateNew(
+    OrderCreateNew event,
+    Emitter<OrderState> emit,
+  ) async {
+    emit(OrderLoading());
+    
+    try {
+      final newOrder = Order(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        customerName: 'New Customer',
+        status: 'pending',
+        total: 0.0,
+        items: [],
+        createdAt: DateTime.now(),
+      );
+      
+      _orders.insert(0, newOrder);
+      
+      emit(OrderLoaded(orders: List.from(_orders), currentOrder: newOrder));
+    } catch (e) {
+      emit(OrderError('Error creating new order: ${e.toString()}'));
+    }
   }
 
   Future<void> _onAddProduct(

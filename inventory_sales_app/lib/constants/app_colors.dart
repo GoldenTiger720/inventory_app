@@ -22,4 +22,7 @@ class AppColors {
   static const Color borderLight = Color(0xFFF1F5F9);
   
   static const Color shadow = Color(0x1A000000);
+  
+  static const Color cardBackground = Color(0xFFF8FAFC);
+  static const Color divider = Color(0xFFE2E8F0);
 }

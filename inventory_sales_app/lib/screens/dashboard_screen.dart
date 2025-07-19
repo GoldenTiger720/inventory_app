@@ -5,6 +5,8 @@ import '../blocs/auth_bloc.dart';
 import '../constants/app_colors.dart';
 import 'price_lookup_screen.dart';
 import 'inventory_count_screen.dart';
+import 'order_management_screen.dart';
+import 'reports_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -99,7 +101,11 @@ class DashboardScreen extends StatelessWidget {
                     icon: PhosphorIcons.shoppingCart(),
                     color: AppColors.accent,
                     onTap: () {
-                      // TODO: Navigate to order management
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const OrderManagementScreen(),
+                        ),
+                      );
                     },
                   ),
                   _buildFeatureCard(
@@ -109,7 +115,11 @@ class DashboardScreen extends StatelessWidget {
                     icon: PhosphorIcons.chartBar(),
                     color: AppColors.warning,
                     onTap: () {
-                      // TODO: Navigate to reports
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ReportsScreen(),
+                        ),
+                      );
                     },
                   ),
                 ],
