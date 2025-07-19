@@ -34,7 +34,7 @@ class Product {
       currentQuantity: json['current_quantity'] ?? 0,
       location: json['location'],
       unit: json['unit'],
-      isActive: json['is_active'] ?? true,
+      isActive: json['is_active'] == 1 || json['is_active'] == true,
     );
   }
 
