@@ -19,6 +19,16 @@ class _CountedItemsTabState extends State<CountedItemsTab> {
   List<InventoryItem> _allItems = [];
 
   @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      if (mounted) {
+        _filterItems();
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -46,11 +56,25 @@ class _CountedItemsTabState extends State<CountedItemsTab> {
                 
                 if (state is InventoryLoaded) {
                   _allItems = state.countedItems;
-                  _filterItems();
                   
-                  if (_filteredItems.isEmpty) {
+                  // Defer the filtering to after the build phase
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      _filterItems();
+                    }
+                  });
+                  
+                  // Use the filtered items if available, otherwise use all items
+                  final itemsToShow = _filteredItems.isEmpty && _searchController.text.isEmpty
+                      ? _allItems
+                      : _filteredItems;
+                  
+                  if (itemsToShow.isEmpty) {
                     return _buildEmptyState();
                   }
+                  
+                  // Update _filteredItems for display without setState
+                  _filteredItems = itemsToShow;
                   
                   return _buildItemsList();
                 }
@@ -98,12 +122,10 @@ class _CountedItemsTabState extends State<CountedItemsTab> {
                 icon: Icon(PhosphorIcons.x()),
                 onPressed: () {
                   _searchController.clear();
-                  _filterItems();
                 },
               )
             : null,
       ),
-      onChanged: (_) => _filterItems(),
     );
   }
 
